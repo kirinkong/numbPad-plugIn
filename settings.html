@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>NumPad Converter Settings</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="settings.js"></script>
+  </head>
+  <body>
+    <h3>Settings</h3>
+    <div id="enableLabel">
+        <span id="enabletext">Enable</span>
+        <label class="switch">
+        <input type="checkbox" id="pluginToggle" checked>
+        <span class="slider round"></span>
+        </label>
+    </div>
+    <hr>
+
+    <div class="row" id="keyMapping">
+      <label class="col-4">7: <input type="text" id="map-7" value="l" maxlength="1"></label>
+      <label class="col-4">8: <input type="text" id="map-8" value="i" maxlength="1"></label>
+      <label class="col-4">9: <input type="text" id="map-9" value="p" maxlength="1"></label>
+      <label class="col-4">4: <input type="text" id="map-4" value="o" maxlength="1"></label>
+      <label class="col-4">5: <input type="text" id="map-5" value="," maxlength="1"></label>
+      <label class="col-4">6: <input type="text" id="map-6" value="/" maxlength="1"></label>
+      <label class="col-4">1: <input type="text" id="map-1" value="." maxlength="1"></label>
+      <label class="col-4">2: <input type="text" id="map-2" value="k" maxlength="1"></label>
+      <label class="col-4">3: <input type="text" id="map-3" value=";" maxlength="1"></label>
+      <label class="col-4">0: <input type="text" id="map-0" value="m" maxlength="1"></label>      
+    </div>
+    <button id="saveSettings">Save Settings</button>
+    <script src="popup.js"></script>
+  </body>
+</html>

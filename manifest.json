@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Keyboard to NumPad Converter",
+  "version": "1.0",
+  "description": "Converts keyborad input to number respectively when typing in input fields.",
+  "permissions": ["scripting", "storage"],
+    "action": {
+    "default_popup": "settings.html",
+    "default_title": "NumPad Converter Settings"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["script.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
