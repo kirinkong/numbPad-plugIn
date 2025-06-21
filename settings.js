@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
     9: document.getElementById("map-9")
   };
   const saveBtn = document.getElementById("saveSettings");
+  const toggleInput = document.getElementById("toggleInput");
+  const editToggleBtn = document.getElementById("editToggleShortcut");
+
+  let capturing = false;
+  let capturedKeys = [];
 
   // Load saved settings from chrome.storage.
   chrome.storage.sync.get(
@@ -30,7 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
       7: "i",
       8: "o",
       9: "p"
-    }
+    },
+    toggleShortcutCloud: ['alt', '1']
   },
   (data) => {
     pluginToggle.checked = data.pluginEnabled;
@@ -39,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inputs[key].value = data.keyMapping[key];
       }
     }
+    toggleInput.value = toggleShortcutCloud.join(" + ").toLowerCase();
   }
   );
 
@@ -50,11 +57,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const updatedMapping = {};
     for (const key in inputs) {
       updatedMapping[key] = inputs[key].value.trim().toLowerCase();
-    }
+    }    
+
     chrome.storage.sync.set(
       {
         //pluginEnabled: pluginToggle.checked,
-        keyMapping: updatedMapping
+        keyMapping: updatedMapping,
+        toggleShortcutCloud: capturedKeys
       },
       () => {
         // Simple visual feedback in the popup.
@@ -73,5 +82,31 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Plugin enabled state updated:", pluginToggle.checked);
     });
   });
+  
+  editToggleBtn.addEventListener("click", () => {
+    capturing = true;
+    capturedKeys = [];
+    toggleInput.value = "";
+    toggleInput.placeholder = "Press up to 3 keys...";
+    toggleInput.focus();
+  });
 
+  window.addEventListener("keydown", (event) => {
+    if (!capturing) return;
+
+    event.preventDefault();
+    const key = event.key.toLowerCase();
+
+    if(!capturedKeys.includes(key) && capturedKeys.length < 3){
+      capturedKeys.push(key);
+      toggleInput.value = capturedKeys.map(k => k.toLowerCase()).join(" + ");
+    }
+  });
+
+  window.addEventListener("keyup", (event) => {
+    if (!capturing) return;
+
+    capturing = false;
+    toggleInput.placeholder = "";
+  });
 });

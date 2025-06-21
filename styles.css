@@ -11,6 +11,46 @@ h3 {
     margin-bottom: 3px;
 }
 
+#toggleSettingsContainer {
+    background-color: antiquewhite;
+    border-radius: 5px;
+}
+
+#toggleSettings {
+    background-color: antiquewhite;
+    border-radius: 5px;
+    margin-top: 5px;
+    font-weight: bold;
+    color: darkgreen;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    padding: 6px 16px;
+}
+
+#toggleSettings label {
+    margin:0;
+}
+
+#editToggleShortcut {
+    margin-left: 5px;
+    background-color: #5f9341;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 2px solid darkgray;
+
+}
+
+#toggleInput{
+    border: 1px solid darkolivegreen;
+    border-radius: 5px;
+    padding: 1px 5px;
+    width: 100px;
+    text-align: center;
+    margin:0;
+}
 
 #saveSettings {
     background-color: #5f9341;

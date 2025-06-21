@@ -12,6 +12,7 @@ let keyMapping = {
 };
 
 let toggleShortcut = ['alt', '1'];
+// alt, ctrl, shift, meta
 
 // Global flag from popup settings (controls if the plugin is globally active)
 let globalPluginEnabled = true;
@@ -28,10 +29,11 @@ function invertMapping(mapping) {
   return inverted;
 }
 
-function isToggleShortcutArray(event){
-    const recognizedModifiers = ['alt', 'ctrl', 'shift', 'meta'];
+let currentlyPressed = new Set();
+let toggleComboTriggered = false;
 
-    
+function isToggleComboActive(){
+  return toggleShortcut.every(key => currentlyPressed.has(key));
 }
 
 // Load saved settings from chrome.storage
@@ -49,13 +51,16 @@ chrome.storage.sync.get(
       7: "i",
       8: "o",
       9: "p"
-    }
+    },
+    shortCutEnabled: true,
+    toggleShortcutCloud: ['alt', '1']
   },
   (data) => {
     globalPluginEnabled = data.pluginEnabled;
-    // Set conversionEnabled to true when plugin is globally enabled.
-    conversionEnabled = globalPluginEnabled;
     keyMapping = invertMapping(data.keyMapping);
+    toggleShortcut = data.toggleShortcutCloud;
+    // Set conversionEnabled to true when plugin is globally enabled.
+    conversionEnabled = shortCutEnabled;
   }
 );
 
@@ -69,6 +74,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
     }
     if (changes.keyMapping) {
       keyMapping = invertMapping(changes.keyMapping.newValue);
+    }
+    if (changes.toggleShortcutCloud) {
+      toggleShortcut = changes.pluginEnabled.toggleShortcutCloud;
     }
   }
 });
@@ -114,13 +122,28 @@ function insertTextAtCursor(input, text){
 document.addEventListener("keydown", (event) => {
     if (!globalPluginEnabled) return;
 
-    if (event.altKey && event.key ==="1"){
-        event.preventDefault();
-        conversionEnabled = !conversionEnabled;
-        const status = conversionEnabled ? "enabled" : "disabled";
-        showToast(`Conversion is ${status}.`);
-        return;
+    currentlyPressed.add(event.key.toLowerCase());
+    if(isToggleComboActive() && !toggleComboTriggered){
+      toggleComboTriggered = true;
+      event.preventDefault();
+      conversionEnabled = !conversionEnabled;
+
+      // Update the stored pluginEnabled setting so that state persists.
+      chrome.storage.sync.set({ shortCutEnabled: conversionEnabled }, () => {
+        showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
+      });
+
+      //showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
+      return;
     }
+
+    // if (event.altKey && event.key ==="1"){
+    //     event.preventDefault();
+    //     conversionEnabled = !conversionEnabled;
+    //     const status = conversionEnabled ? "enabled" : "disabled";
+    //     showToast(`Conversion is ${status}.`);
+    //     return;
+    // }
 
     if(!conversionEnabled) return;
 
@@ -153,4 +176,14 @@ document.addEventListener("click", (event) => {
         }
         return;
     }
+});
+
+document.addEventListener("keyup", (event) => {
+  // Remove the released key.
+  currentlyPressed.delete(event.key.toLowerCase());
+  
+  // Reset the toggle state if the combination is no longer active.
+  if (!isToggleComboActive()) {
+    toggleComboTriggered = false;
+  }
 });
