@@ -11,11 +11,6 @@ h3 {
     margin-bottom: 3px;
 }
 
-#toggleSettingsContainer {
-    background-color: antiquewhite;
-    border-radius: 5px;
-}
-
 #toggleSettings {
     background-color: antiquewhite;
     border-radius: 5px;
@@ -24,12 +19,14 @@ h3 {
     color: darkgreen;
     display: flex;
     align-items: center;
-    width: fit-content;
+    max-width: 270px;
     padding: 6px 16px;
 }
 
 #toggleSettings label {
     margin:0;
+    padding: 0 0 2px 5px;
+    width: 180px;
 }
 
 #editToggleShortcut {
@@ -47,7 +44,7 @@ h3 {
     border: 1px solid darkolivegreen;
     border-radius: 5px;
     padding: 1px 5px;
-    width: 100px;
+    width: 130px;
     text-align: center;
     margin:0;
 }

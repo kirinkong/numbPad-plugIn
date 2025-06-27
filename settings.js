@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inputs[key].value = data.keyMapping[key];
       }
     }
-    toggleInput.value = toggleShortcutCloud.join(" + ").toLowerCase();
+    toggleInput.value = data.toggleShortcutCloud.join(" + ").toLowerCase();
   }
   );
 
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     capturing = true;
     capturedKeys = [];
     toggleInput.value = "";
-    toggleInput.placeholder = "Press up to 3 keys...";
+    toggleInput.placeholder = "Listening...";
     toggleInput.focus();
   });
 

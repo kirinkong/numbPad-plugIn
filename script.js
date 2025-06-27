@@ -19,6 +19,10 @@ let globalPluginEnabled = true;
 // Local flag to let user toggle conversion on/off when plugin is enabled (default true)
 let conversionEnabled = true;
 
+const COMBO_WINDOW = 500;           // ms to complete the combo
+let comboBuffer = [];               // [{key, time}, …]
+let comboTimer = null;              // Timeout handle
+
 function invertMapping(mapping) {
   let inverted = {};
   for (const num in mapping) {
@@ -29,8 +33,9 @@ function invertMapping(mapping) {
   return inverted;
 }
 
-let currentlyPressed = new Set();
-let toggleComboTriggered = false;
+////For verion 1 of changing the toggle shortcut
+//let currentlyPressed = new Set();
+//let toggleComboTriggered = false;
 
 function isToggleComboActive(){
   return toggleShortcut.every(key => currentlyPressed.has(key));
@@ -60,7 +65,7 @@ chrome.storage.sync.get(
     keyMapping = invertMapping(data.keyMapping);
     toggleShortcut = data.toggleShortcutCloud;
     // Set conversionEnabled to true when plugin is globally enabled.
-    conversionEnabled = shortCutEnabled;
+    conversionEnabled = data.shortCutEnabled;
   }
 );
 
@@ -76,7 +81,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
       keyMapping = invertMapping(changes.keyMapping.newValue);
     }
     if (changes.toggleShortcutCloud) {
-      toggleShortcut = changes.pluginEnabled.toggleShortcutCloud;
+      toggleShortcut = changes.toggleShortcutCloud.newValue;
     }
   }
 });
@@ -122,20 +127,35 @@ function insertTextAtCursor(input, text){
 document.addEventListener("keydown", (event) => {
     if (!globalPluginEnabled) return;
 
-    currentlyPressed.add(event.key.toLowerCase());
-    if(isToggleComboActive() && !toggleComboTriggered){
-      toggleComboTriggered = true;
+    const key = event.key.toLowerCase();
+    const now = Date.now();
+
+    if (toggleShortcut.includes(key)) {
       event.preventDefault();
-      conversionEnabled = !conversionEnabled;
 
-      // Update the stored pluginEnabled setting so that state persists.
-      chrome.storage.sync.set({ shortCutEnabled: conversionEnabled }, () => {
-        showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
-      });
+      comboBuffer = comboBuffer.filter(e => e.key !== key);
+      comboBuffer.push({key, time: now});
 
-      //showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
-      return;
+      comboBuffer = comboBuffer.filter(e => now - e.time <= COMBO_WINDOW);
+      
+      const uniqueKeys = [...new Set(comboBuffer.map(e => e.key))]
     }
+
+    // For version 1 of changing the toggle shortcut
+    // currentlyPressed.add(event.key.toLowerCase());
+    // if(isToggleComboActive() && !toggleComboTriggered){
+    //   toggleComboTriggered = true;
+    //   event.preventDefault();
+    //   conversionEnabled = !conversionEnabled;
+
+    //   // Update the stored pluginEnabled setting so that state persists.
+    //   chrome.storage.sync.set({ shortCutEnabled: conversionEnabled }, () => {
+    //     showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
+    //   });
+
+    //   //showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
+    //   return;
+    // }
 
     // if (event.altKey && event.key ==="1"){
     //     event.preventDefault();
