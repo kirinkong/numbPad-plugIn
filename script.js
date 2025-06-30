@@ -19,7 +19,7 @@ let globalPluginEnabled = true;
 // Local flag to let user toggle conversion on/off when plugin is enabled (default true)
 let conversionEnabled = true;
 
-const COMBO_WINDOW = 500;           // ms to complete the combo
+const COMBO_WINDOW = 50;           // ms to complete the combo
 let comboBuffer = [];               // [{key, time}, …]
 let comboTimer = null;              // Timeout handle
 
@@ -37,9 +37,9 @@ function invertMapping(mapping) {
 //let currentlyPressed = new Set();
 //let toggleComboTriggered = false;
 
-function isToggleComboActive(){
-  return toggleShortcut.every(key => currentlyPressed.has(key));
-}
+// function isToggleComboActive(){
+//   return toggleShortcut.every(key => currentlyPressed.has(key));
+// }
 
 // Load saved settings from chrome.storage
 chrome.storage.sync.get(
@@ -131,7 +131,7 @@ document.addEventListener("keydown", (event) => {
     const now = Date.now();
 
     if (toggleShortcut.includes(key)) {
-      event.preventDefault();
+      //event.preventDefault();
 
       comboBuffer = comboBuffer.filter(e => e.key !== key);
       comboBuffer.push({key, time: now});
@@ -139,6 +139,37 @@ document.addEventListener("keydown", (event) => {
       comboBuffer = comboBuffer.filter(e => now - e.time <= COMBO_WINDOW);
       
       const uniqueKeys = [...new Set(comboBuffer.map(e => e.key))]
+
+      if (toggleShortcut.every(k => uniqueKeys.includes(k))){
+        event.preventDefault();
+        conversionEnabled = !conversionEnabled;
+
+        chrome.storage.sync.set({ shortCutEnabled: conversionEnabled }, () => {
+          showToast(`Conversion is ${conversionEnabled ? "enabled" : "disabled"}.`);
+        });
+
+        comboBuffer = [];
+        clearTimeout(comboTimer);
+        comboTimer = null;
+      } else {
+
+        clearTimeout(comboTimer);
+        // comboTimer = setTimeout(() => {
+        //   const activeEl = document.activeElement;
+        //   if (
+        //     activeEl &&
+        //     (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable)
+        //   ){
+        //     comboBuffer.forEach(e => {
+        //       insertTextAtCursor(activeEl, e.key);
+        //     });
+        //   }
+        //   comboBuffer = [];
+        //   comboTimer = null;
+        // }, COMBO_WINDOW);
+      }
+
+      return;
     }
 
     // For version 1 of changing the toggle shortcut
@@ -199,11 +230,16 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keyup", (event) => {
-  // Remove the released key.
-  currentlyPressed.delete(event.key.toLowerCase());
+  // // Remove the released key.
+  // currentlyPressed.delete(event.key.toLowerCase());
   
-  // Reset the toggle state if the combination is no longer active.
-  if (!isToggleComboActive()) {
-    toggleComboTriggered = false;
+  // // Reset the toggle state if the combination is no longer active.
+  // if (!isToggleComboActive()) {
+  //   toggleComboTriggered = false;
+  // }
+
+  if (comboTimer) {
+    clearTimeout(comboTimer);
+    comboTimer = null;
   }
 });
